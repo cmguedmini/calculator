@@ -22,6 +22,23 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<sonar-maven-plugin.version>3.4.0.905</sonar-maven-plugin.version>
+
+        <!-- Sonar properties -->
+        <sonar.issue.ignore.multicriteria>S3437,UndocumentedApi,BoldAndItalicTagsCheck</sonar.issue.ignore.multicriteria>
+        <!-- Rule https://sonarcloud.io/coding_rules?open=squid%3AS3437&rule_key=squid%3AS3437 is ignored, as a JPA-managed field cannot be transient -->
+        <sonar.issue.ignore.multicriteria.S3437.resourceKey>src/main/java/**/*</sonar.issue.ignore.multicriteria.S3437.resourceKey>
+        <sonar.issue.ignore.multicriteria.S3437.ruleKey>squid:S3437</sonar.issue.ignore.multicriteria.S3437.ruleKey>
+        <!-- Rule https://sonarcloud.io/coding_rules?open=squid%3AUndocumentedApi&rule_key=squid%3AUndocumentedApi is ignored, as we want to follow "clean code" guidelines and classes, methods and arguments names should be self-explanatory -->
+        <sonar.issue.ignore.multicriteria.UndocumentedApi.resourceKey>src/main/java/**/*</sonar.issue.ignore.multicriteria.UndocumentedApi.resourceKey>
+        <sonar.issue.ignore.multicriteria.UndocumentedApi.ruleKey>squid:UndocumentedApi</sonar.issue.ignore.multicriteria.UndocumentedApi.ruleKey>
+        <sonar.jacoco.reportPaths>${project.testresult.directory}/coverage/jacoco/jacoco.exec</sonar.jacoco.reportPaths>
+        <sonar.java.codeCoveragePlugin>jacoco</sonar.java.codeCoveragePlugin>
+        <sonar.testExecutionReportPaths>${project.testresult.directory}/jest/TESTS-results.xml</sonar.testExecutionReportPaths>
+        <sonar.typescript.lcov.reportPaths>${project.testresult.directory}/lcov.info</sonar.typescript.lcov.reportPaths>
+        <sonar.sources>${project.basedir}/src/main/</sonar.sources>
+        <sonar.surefire.reportsPath>${project.testresult.directory}/surefire-reports</sonar.surefire.reportsPath>
+        <sonar.tests>${project.basedir}/src/test/</sonar.tests>
 	</properties>
 
 	<dependencies>
@@ -43,6 +60,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			 <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
+            </plugin>
 		</plugins>
 	</build>
 
