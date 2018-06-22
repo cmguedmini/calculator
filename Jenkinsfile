@@ -11,7 +11,7 @@ node{
    stage('SonarQube analysis') {
 	  def mvnHome =  tool name: 'M3', type: 'maven'
 	  withSonarQubeEnv('sonar-6') {
-		sh "${mvnHome}/bin/mvn sonar:sonar"
+		sh "${mvnHome}/bin/mvn sonar:sonar -Dsonar.analysis.mode="
 	  } // SonarQube taskId is automatically attached to the pipeline context            
    }
    stage('Email Notification'){
