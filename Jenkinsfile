@@ -11,5 +11,5 @@ node{
       mail bcc: '', body: '''Hi Welcome to jenkins email alerts
 	  Thanks,
       Devops Team''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'c.mguedmini@roam-smart.com'
-   }s
+   }
 }
