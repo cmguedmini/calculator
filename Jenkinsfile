@@ -10,11 +10,9 @@ node{
    
    stage('SonarQube analysis') {
 	  def mvnHome =  tool name: 'M3', type: 'maven'
-	  node {
-              withSonarQubeEnv('My SonarQube Server') {
-                 sh ${mvnHome}/bin/mvn package clean package sonar:sonar"
-              }
-          } // SonarQube taskId is automatically attached to the pipeline context            
+      withSonarQubeEnv('Sonar-6') {
+         sh ${mvnHome}/bin/mvn package clean package sonar:sonar"
+      }         
    }
    stage('Email Notification'){
       mail bcc: '', body: '''Hi Welcome to jenkins email alerts
