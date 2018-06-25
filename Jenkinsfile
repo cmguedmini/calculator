@@ -45,6 +45,12 @@ node {
         runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
         //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
     }
+    
+    stage('Email Notification'){
+      mail bcc: '', body: '''Hi Welcome to jenkins email alerts
+	  Thanks,
+      Devops Team''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'c.mguedmini@roam-smart.com'
+   }
 
 }
 
