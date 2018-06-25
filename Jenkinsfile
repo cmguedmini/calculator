@@ -7,11 +7,7 @@ def HTTP_PORT="9999"
   
 node {
 
-	environment {
-    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
-    IMAGE = readMavenPom().getArtifactId()
-    VERSION = readMavenPom().getVersion()
-  }
+	
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
@@ -21,6 +17,8 @@ node {
 
     stage('Checkout') {
         checkout scm
+        def pom = readMavenPom file: 'pom.xml'
+ 		def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
     }
 
     stage('Build'){
@@ -36,16 +34,16 @@ node {
      }
 
     stage("Image Prune"){
-        imagePrune(CONTAINER_NAME)
+        imagePrune()
     }
 
     stage('Image Build'){
-        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
+        imageBuild()
     }
 
     stage('Push to Docker Registry'){
         withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage("${IMAGE}", "${VERSION}", USERNAME, PASSWORD)
+            pushToImage("USERNAME, PASSWORD)
         }
     }
 
@@ -62,22 +60,22 @@ node {
 
 }
 
-def imagePrune(containerName){
+def imagePrune(){
     try {
         sh "docker image prune -f"
-        sh "docker stop ${IMAGE}"
+        sh "docker stop ${pom.artifactId}"
     } catch(error){}
 }
 
-def imageBuild(containerName, tag){
-    sh "docker build -t ${IMAGE}:${VERSION}  -t ${IMAGE} --pull --no-cache ."
+def imageBuild(){
+    sh "docker build -t ${pom.artifactId}:${version}  -t ${pom.artifactId} --pull --no-cache ."
     echo "Image build complete"
 }
 
-def pushToImage(containerName, tag, dockerUser, dockerPassword){
+def pushToImage(dockerUser, dockerPassword){
     sh "docker login -u $dockerUser -p $dockerPassword"
-    sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
-    sh "docker push $dockerUser/$containerName:$tag"
+    sh "docker tag ${pom.artifactId}:${version} $dockerUser/${pom.artifactId}:${version}"
+    sh "docker push $dockerUser/${pom.artifactId}:${version}"
     echo "Image push complete"
 }
 
