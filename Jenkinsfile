@@ -23,6 +23,8 @@ node {
     }
 
     stage('Build'){
+    	CONTAINER_NAME=readMavenPom().getArtifactId()
+    	CONTAINER_TAG= readMavenPom().getVersion()
         sh "mvn clean install"
     }
 
@@ -35,21 +37,21 @@ node {
      }
 
     stage("Image Prune"){
-        imagePrune(IMAGE)
+        imagePrune(CONTAINER_NAME)
     }
 
     stage('Image Build'){
-        imageBuild(IMAGE, VERSION)
+        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
     }
 
     stage('Push to Docker Registry'){
         withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(IMAGE, VERSION, USERNAME, PASSWORD)
+            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
         }
     }
 
     stage('Run App'){
-        runApp(IMAGE, VERSION, DOCKER_HUB_USER, HTTP_PORT)
+        runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
         //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
     }
     
