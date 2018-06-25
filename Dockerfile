@@ -1,14 +1,10 @@
-FROM maven:3-alpine
+FROM openjdk:8-jre-alpine
 MAINTAINER Chawki Mguedmini <c.mguedmini@roam-smart.com>
 
-COPY pom.xml pipeline/
+#install Spring Boot artifact
+VOLUME /tmp
+ADD target/*.jar app.jar
 
-COPY src/ pipeline/src/
-
-WORKDIR pipeline/
-
-RUN mvn clean install
-
-EXPOSE 8090
-
-ENTRYPOINT [ "java", "-jar", "/pipeline/target/jenkins-pipeline.jar"]
+EXPOSE 9090
+RUN sh -c 'touch /app.jar'
+CMD java -Djava.security.egd=file:/dev/./urandom -jar /app.jar
