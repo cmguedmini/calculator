@@ -36,11 +36,11 @@ node {
      }
 
     stage("Image Prune"){
-        imagePrune("${IMAGE}")
+        imagePrune(CONTAINER_NAME)
     }
 
     stage('Image Build'){
-        imageBuild("${IMAGE}", "${VERSION}")
+        imageBuild(CONTAINER_NAME, CONTAINER_TAG)
     }
 
     stage('Push to Docker Registry'){
@@ -65,12 +65,12 @@ node {
 def imagePrune(containerName){
     try {
         sh "docker image prune -f"
-        sh "docker stop $containerName"
+        sh "docker stop ${IMAGE}"
     } catch(error){}
 }
 
 def imageBuild(containerName, tag){
-    sh "docker build -t $containerName:$tag  -t $containerName --pull --no-cache ."
+    sh "docker build -t ${IMAGE}:${VERSION}  -t ${IMAGE} --pull --no-cache ."
     echo "Image build complete"
 }
 
