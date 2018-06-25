@@ -1,7 +1,7 @@
 def CONTAINER_NAME="jenkins-pipeline"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="mychawki"
-def HTTP_PORT="8080"
+def HTTP_PORT="9999"
 
 node {
 
@@ -35,12 +35,6 @@ node {
         imageBuild(CONTAINER_NAME, CONTAINER_TAG)
     }
 
-    stage('Push to Docker Registry'){
-        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
-        }
-    }
-
     stage('Run App'){
         runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
     }
@@ -64,6 +58,11 @@ def pushToImage(containerName, tag, dockerUser, dockerPassword){
     sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
     sh "docker push $dockerUser/$containerName:$tag"
     echo "Image push complete"
+}
+
+def runLocalApp(containerName, tag, httpPort){
+    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $containerName:$tag"
+    echo "Application started on port: ${httpPort} (http)"
 }
 
 def runApp(containerName, tag, dockerHubUser, httpPort){
