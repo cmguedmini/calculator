@@ -35,7 +35,7 @@ node {
      }
 
     stage("Image Prune"){
-        imagePrune(IMAGE)
+        imagePrune("${IMAGE}")
     }
 
     stage('Image Build'){
