@@ -3,6 +3,12 @@ def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="mychawki"
 def HTTP_PORT="9999"
 
+environment {
+    //Use Pipeline Utility Steps plugin to read information from pom.xml into env variables
+    IMAGE = readMavenPom().getArtifactId()
+    VERSION = readMavenPom().getVersion()
+  }
+  
 node {
 
     stage('Initialize'){
