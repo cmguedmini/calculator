@@ -15,6 +15,7 @@ node {
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
         env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
+        
     }
 
     stage('Checkout') {
@@ -34,21 +35,21 @@ node {
      }
 
     stage("Image Prune"){
-        imagePrune(${IMAGE})
+        imagePrune(IMAGE)
     }
 
     stage('Image Build'){
-        imageBuild(${IMAGE}, ${VERSION})
+        imageBuild(IMAGE, VERSION)
     }
 
     stage('Push to Docker Registry'){
         withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(${IMAGE}, ${VERSION}, USERNAME, PASSWORD)
+            pushToImage(IMAGE, VERSION, USERNAME, PASSWORD)
         }
     }
 
     stage('Run App'){
-        runApp(${IMAGE}, ${VERSION}, DOCKER_HUB_USER, HTTP_PORT)
+        runApp(IMAGE, VERSION, DOCKER_HUB_USER, HTTP_PORT)
         //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
     }
     
