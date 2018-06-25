@@ -1,4 +1,5 @@
 FROM maven:3-alpine
+MAINTAINER Chawki Mguedmini <c.mguedmini@roam-smart.com>
 
 COPY pom.xml pipeline/
 
