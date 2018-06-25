@@ -6,5 +6,6 @@ VOLUME /tmp
 ADD target/*.jar app.jar
 
 EXPOSE 9090
+
 RUN sh -c 'touch /app.jar'
 CMD java -Djava.security.egd=file:/dev/./urandom -jar /app.jar
