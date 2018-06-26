@@ -101,7 +101,7 @@ def runLocalApp(containerName, tag, httpPort){
 }
 
 def runApp(dockerHubUser, httpPort){
-    sh "docker pull $dockerHubUser/$containerName"
+    sh "docker pull $dockerHubUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
     sh "docker run -d --rm -p $httpPort:$httpPort --name ${env.POM_ARTIFACT} $dockerHubUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
     echo "Application started on port: ${httpPort} (http)"
 }
