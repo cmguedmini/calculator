@@ -52,8 +52,8 @@ node {
     }
 
     stage('Run App'){
-        //runApp(DOCKER_HUB_USER, HTTP_PORT)
-        runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
+        runApp(DOCKER_HUB_USER, HTTP_PORT)
+        //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
     }
     
     stage('Email Notification'){
