@@ -64,7 +64,7 @@ node {
 
 }
 
-def imagePrune(pom){
+def imagePrune(){
     try {
         sh "docker image prune -f"
         sh "docker stop ${env.POM_ARTIFACT}"
