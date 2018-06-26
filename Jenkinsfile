@@ -41,9 +41,9 @@ node {
         imagePrune()
     }
 
-    stage('Image Build'){
-        imageBuild()
-    }
+   // stage('Image Build'){
+   //     imageBuild()
+   // }
 
     stage('Push to Docker Registry'){
         withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
@@ -83,10 +83,16 @@ def imageBuild(){
 }
 
 def pushToImage(dockerUser, dockerPassword){
-    sh "docker login -u $dockerUser -p $dockerPassword"
-    sh "docker tag ${env.POM_ARTIFACT}:${env.POM_VERSION} $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
-    sh "docker push $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
-    echo "Image push complete"
+    try {
+		sh "docker build -t $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION} --pull --no-cache ."
+		echo "Image build complete"
+	    sh "docker login -u $dockerUser -p $dockerPassword"
+	    //sh "docker tag ${env.POM_ARTIFACT}:${env.POM_VERSION} $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
+	    sh "docker push $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
+	    echo "Image push complete"
+	    } catch(error){
+    	echo "Image Build/Push error: ${error}"
+    }
 }
 
 def runLocalApp(containerName, tag, httpPort){
