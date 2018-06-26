@@ -17,8 +17,8 @@ node {
 
     stage('Checkout') {
         checkout scm
-        def pom = readMavenPom file: 'pom.xml'
- 		def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
+        
+ 		//def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
  		def pom = readMavenPom file: 'pom.xml'
         print "Build: " + pom.version
         env.POM_VERSION = pom.version
