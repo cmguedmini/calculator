@@ -19,6 +19,10 @@ node {
         checkout scm
         def pom = readMavenPom file: 'pom.xml'
  		def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
+ 		def pom = readMavenPom file: 'pom.xml'
+        print "Build: " + pom.version
+        env.POM_VERSION = pom.version
+        env.POM_ARTIFACT = pom.artifactId
     }
 
     stage('Build'){
@@ -34,11 +38,11 @@ node {
      }
 
     stage("Image Prune"){
-        imagePrune(pom)
+        imagePrune()
     }
 
     stage('Image Build'){
-        imageBuild(pom,version)
+        imageBuild()
     }
 
     stage('Push to Docker Registry'){
@@ -63,15 +67,15 @@ node {
 def imagePrune(pom){
     try {
         sh "docker image prune -f"
-        sh "docker stop ${pom.artifactId}"
+        sh "docker stop ${env.POM_ARTIFACT}"
     } catch(error){
     	echo "Image Prune error: ${error}"
     }
 }
 
-def imageBuild(pom,version){
+def imageBuild(){
     try {
-    	sh "docker build -t ${pom.artifactId}:${version}  -t ${pom.artifactId} --pull --no-cache ."
+    	sh "docker build -t ${env.POM_ARTIFACT}:${env.POM_VERSION}  -t ${env.POM_ARTIFACT} --pull --no-cache ."
     	echo "Image build complete"
     } catch(error){
     	echo "Image Build error: ${error}"
