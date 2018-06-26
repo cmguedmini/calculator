@@ -75,7 +75,7 @@ def imagePrune(){
 
 def imageBuild(){
     try {
-    	sh "docker build -t ${env.POM_ARTIFACT}:${env.POM_VERSION}  -t ${env.POM_ARTIFACT} --pull --no-cache ."
+    	sh "docker build -t ${env.POM_ARTIFACT}:${env.POM_VERSION} --pull --no-cache ."
     	echo "Image build complete"
     } catch(error){
     	echo "Image Build error: ${error}"
