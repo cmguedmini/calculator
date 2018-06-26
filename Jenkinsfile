@@ -52,8 +52,8 @@ node {
     }
 
     stage('Run App'){
-        runApp("${IMAGE}", "${VERSION}", DOCKER_HUB_USER, HTTP_PORT)
-        //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
+        //runApp(DOCKER_HUB_USER, HTTP_PORT)
+        runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
     }
     
     stage('Email Notification'){
@@ -90,12 +90,12 @@ def pushToImage(dockerUser, dockerPassword){
 }
 
 def runLocalApp(containerName, tag, httpPort){
-    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $containerName:$tag"
+    sh "docker run -d --rm -p $httpPort:$httpPort --name ${env.POM_ARTIFACT} ${env.POM_ARTIFACT}:${env.POM_VERSION}"
     echo "Application started on port: ${httpPort} (http)"
 }
 
-def runApp(containerName, tag, dockerHubUser, httpPort){
+def runApp(dockerHubUser, httpPort){
     sh "docker pull $dockerHubUser/$containerName"
-    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag"
+    sh "docker run -d --rm -p $httpPort:$httpPort --name ${env.POM_ARTIFACT} $dockerHubUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
     echo "Application started on port: ${httpPort} (http)"
 }
