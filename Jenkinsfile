@@ -84,8 +84,8 @@ def imageBuild(){
 
 def pushToImage(dockerUser, dockerPassword){
     sh "docker login -u $dockerUser -p $dockerPassword"
-    sh "docker tag ${pom.artifactId}:${version} $dockerUser/${pom.artifactId}:${version}"
-    sh "docker push $dockerUser/${pom.artifactId}:${version}"
+    sh "docker tag ${env.POM_ARTIFACT}:${env.POM_VERSION} $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
+    sh "docker push $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
     echo "Image push complete"
 }
 
