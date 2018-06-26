@@ -34,11 +34,11 @@ node {
      }
 
     stage("Image Prune"){
-        imagePrune()
+        imagePrune(pom)
     }
 
     stage('Image Build'){
-        imageBuild()
+        imageBuild(pom,version)
     }
 
     stage('Push to Docker Registry'){
@@ -60,16 +60,22 @@ node {
 
 }
 
-def imagePrune(){
+def imagePrune(pom){
     try {
         sh "docker image prune -f"
         sh "docker stop ${pom.artifactId}"
-    } catch(error){}
+    } catch(error){
+    	echo "Image Prune error: ${error}"
+    }
 }
 
-def imageBuild(){
-    sh "docker build -t ${pom.artifactId}:${version}  -t ${pom.artifactId} --pull --no-cache ."
-    echo "Image build complete"
+def imageBuild(pom,version){
+    try {
+    	sh "docker build -t ${pom.artifactId}:${version}  -t ${pom.artifactId} --pull --no-cache ."
+    	echo "Image build complete"
+    } catch(error){
+    	echo "Image Build error: ${error}"
+    }
 }
 
 def pushToImage(dockerUser, dockerPassword){
