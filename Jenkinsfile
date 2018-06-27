@@ -114,7 +114,7 @@ def runApp(dockerHubUser, httpPort){
 }
 
 def getVersions() {
-	def version = "env.POM_VERSION.split(/[.]/)
+	def version = env.POM_VERSION.split(/[.]/)
 	echo "Version ${version}"
 	def major = version[0];
 	def minor = version[1];
