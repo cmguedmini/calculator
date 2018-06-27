@@ -33,9 +33,10 @@ node {
       getVersions()
       echo "New version ${env.NEW_VERSION} for Branch ${env.BRANCH_NAME}"
       sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
+      sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
       sh "git add ."
       sh "git commit -m 'Raise version'"
-      sh "git --no-verify push -u origin ${env.BRANCH_NAME}"
+      sh "git push -u origin ${env.BRANCH_NAME}"
       sh "git tag v${env.NEW_VERSION}"
       
     }
