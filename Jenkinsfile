@@ -30,11 +30,11 @@ node {
       def originalV = env.POM_VERSION.split('.');
       
       echo "Original version ${originalV}"
-      def major = originalV[0];
+      def major = originalV[1];
       echo "Original major version ${major}"
-      def minor = originalV[1];
+      def minor = originalV[2];
       echo "Original minor version ${minor}"
-      def patch  = Integer.parseInt(originalV[2]) + 1;
+      def patch  = Integer.parseInt(originalV[3]) + 1;
       echo "Original patch version ${patch}"
       def v = "${major}.${minor}.${patch}"
       if (v) {
