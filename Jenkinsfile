@@ -23,6 +23,9 @@ node {
         print "Build: " + pom.version
         env.POM_VERSION = pom.version
         env.POM_ARTIFACT = pom.artifactId
+        sh "git config --global user.email c.mguedmini@roam-smart.com"
+        sh "git config --global user.name Chawki Mguedmini"
+        
     }
     
     stage("Set Version") {
