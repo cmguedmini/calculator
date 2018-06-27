@@ -7,12 +7,20 @@ def HTTP_PORT="9999"
   
 node {
 
+	sh "git config --replace-all credential.helper cache"
+	sh "git config --global --replace-all user.email chawki.mguedmini@gmail.com"
+	sh "git config --global --replace-all user.name cmguedmini"
 	
+	
+    
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
-        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
-        
+        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"        
+    }
+    
+    stage('Clean') {
+        deleteDir()
     }
 
     stage('Checkout') {
@@ -23,27 +31,18 @@ node {
         print "Build: " + pom.version
         env.POM_VERSION = pom.version
         env.POM_ARTIFACT = pom.artifactId
-        sh "git config --global user.email 'chawki.mguedmini@roam-smart.com'"
-        sh "git config --global user.name 'Chawki Mguedmini'"
-        
     }
     
     stage("Set Version") {
-      
-      
-      
-      withCredentials([usernamePassword(credentialsId: 'gitHubAccount', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
       		echo "Start Set Version Stage"
       		getVersions()
       		echo "New version ${env.NEW_VERSION} for Branch ${env.BRANCH_NAME}"
       		sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
-      //sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
-      		sh "git add ."
-      		sh "git commit -m 'Raise version'"
-            sh "git tag -a $BRANCH_NAME.$BUILD_NUMBER -m "git sha is $GIT_COMMIT"')
-            sh "git push https://$GIT_USER:c.mguedmini@roam-smart.com/OrgName/SampleRepo.git' --tags"
-            }
-      
+      		//sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
+      		echo "Commit and push branch"
+            sh "git commit -am \"New release candidate ${env.NEW_VERSION}\""
+            sh "git tag -a ${env.NEW_VERSION} -m \"New Tag for release candidate ${env.NEW_VERSION}\""
+            sh "git push origin ${env.BRANCH_NAME} --tags"
     }
 
     stage('Build'){
