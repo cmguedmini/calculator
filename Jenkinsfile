@@ -1,137 +1,80 @@
-def CONTAINER_NAME="jenkins-pipeline"
-def CONTAINER_TAG="latest"
-def DOCKER_HUB_USER="mychawki"
-def HTTP_PORT="9999"
+#!groovy​
 
-
-  
 node {
 
-	
-    stage('Initialize'){
-        def dockerHome = tool 'myDocker'
-        def mavenHome  = tool 'myMaven'
-        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
-        
+    def version
+    def webAppTarget = "xxx"
+    def sourceBranch = "master"
+    def releaseBranch = "feature3"
+    def nexusBaseRepoUrl = "http://xxx"
+    def repositoryUrl = "http://xxx"
+    def gitCredentialsId = "xxx"
+    def nexusRepositoryId = "xxx"
+    def configFileId = "xxx"
+    def mvnHome = tool 'M3'
+
+    def updateQAVersion = {
+        def split = version.split('\\.')
+        //always remove "-SNAPSHOT"
+        split[2] = split[2].split('-SNAPSHOT')[0]
+        //increment the middle number of version by 1
+        split[1] = Integer.parseInt(split[1]) + 1
+        //reset the last number to 0
+        split[2] = 0
+        version = split.join('.')
     }
 
-    stage('Checkout') {
-        checkout scm
-        
- 		//def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
- 		def pom = readMavenPom file: 'pom.xml'
-        print "Build: " + pom.version
-        env.POM_VERSION = pom.version
-        env.POM_ARTIFACT = pom.artifactId
-        sh "git config --global user.email 'c.mguedmini@roam-smart.com'"
-        sh "git config --global user.name 'Chawki Mguedmini'"
-        
-    }
-    
-    stage("Set Version") {
-      echo "Start Set Version Stage"
-      getVersions()
-      echo "New version ${env.NEW_VERSION} for Branch ${env.BRANCH_NAME}"
-      sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
-      //sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
-      sh "git add ."
-      sh "git commit -m 'Raise version'"
-      sh "git push origin HEAD:${env.BRANCH_NAME} --follow-tags"
-      sh "git tag v${env.NEW_VERSION}"
-      
+    //FIXME: use SSH-Agent
+   //FIXME: use SSH-Agent
+
+sh "git config --replace-all credential.helper cache"
+sh "git config --global --replace-all user.email chawkimguedmini@gmail.com git config --global --replace-all user.name cmguedmini"
+
+configFileProvider([configFile(fileId: "${configFileId}", variable: "MAVEN_SETTINGS")]) {
+
+    stage('Clean') {
+        deleteDir()
     }
 
-    stage('Build'){
-        sh "mvn clean install"
-    }
+    dir('qa') {
+        stage('Checkout QA') {
+                echo 'Load from GIT'
+                checkout scm
+       }
 
-    stage('Sonar'){
-        try {
-            sh "mvn sonar:sonar"
-        } catch(error){
-            echo "The sonar server could not be reached ${error}"
+            stage('Increment QA version') {
+                version = sh(returnStdout: true, script: "${mvnHome}/bin/mvn -q -N org.codehaus.mojo:exec-maven-plugin:1.3.1:exec -Dexec.executable='echo' -Dexec.args='\${project.version}'").toString().trim()
+                echo 'Old Version:'
+                echo version
+                updateQAVersion()
+                echo 'New Version:'
+                echo version
+            }
+
+            stage('Set new QA version') {
+                echo 'Clean Maven'
+                sh "${mvnHome}/bin/mvn -B clean -s '$MAVEN_SETTINGS'"
+
+                echo 'Set new version'
+                sh "${mvnHome}/bin/mvn -B versions:set -DnewVersion=${version}"
+            }
+
+            stage('QA Build') {
+                echo 'Execute maven build'
+                sh "${mvnHome}/bin/mvn -B install -s '$MAVEN_SETTINGS'"
+            }
+
+            stage('Push new QA version') {
+                echo 'Commit and push branch'
+                sh "git commit -am \"New release candidate ${version}\""
+                sh "git push origin ${releaseBranch}"
+            }
+
+            stage('Push new tag') {
+                echo 'Tag and push'
+                sh "git tag -a ${version} -m 'release tag'"
+                sh "git push origin ${version}"
+            }
         }
-     }
-
-    stage("Image Prune"){
-        imagePrune()
-    }
-
-   // stage('Image Build'){
-   //     imageBuild()
-   // }
-
-    stage('Push to Docker Registry'){
-        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(USERNAME, PASSWORD)
-        }
-    }
-
-    stage('Run App'){
-        runApp(DOCKER_HUB_USER, HTTP_PORT)
-        //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
-    }
-    
-    stage('Email Notification'){
-      mail bcc: '', body: '''Hi Welcome to jenkins email alerts
-	  Thanks,
-      Devops Team''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'c.mguedmini@roam-smart.com'
-   }
-
-}
-
-def imagePrune(){
-    try {
-        sh "docker image prune -f"
-        sh "docker stop ${env.POM_ARTIFACT}"
-    } catch(error){
-    	echo "Image Prune error: ${error}"
-    }
-}
-
-def imageBuild(){
-    try {
-    	sh "docker build -t ${env.POM_ARTIFACT}:${env.POM_VERSION} --pull --no-cache ."
-    	echo "Image build complete"
-    } catch(error){
-    	echo "Image Build error: ${error}"
-    }
-}
-
-def pushToImage(dockerUser, dockerPassword){
-    try {
-		sh "docker build -t $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION} --pull --no-cache ."
-		echo "Image build complete"
-	    sh "docker login -u $dockerUser -p $dockerPassword"
-	    //sh "docker tag ${env.POM_ARTIFACT}:${env.POM_VERSION} $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
-	    sh "docker push $dockerUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
-	    echo "Image push complete"
-	    } catch(error){
-    	echo "Image Build/Push error: ${error}"
-    }
-}
-
-def runLocalApp(containerName, tag, httpPort){
-    sh "docker run -d --rm -p $httpPort:$httpPort --name ${env.POM_ARTIFACT} ${env.POM_ARTIFACT}:${env.POM_VERSION}"
-    echo "Application started on port: ${httpPort} (http)"
-}
-
-def runApp(dockerHubUser, httpPort){
-    sh "docker pull $dockerHubUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
-    sh "docker run -d --rm -p $httpPort:$httpPort --name ${env.POM_ARTIFACT} $dockerHubUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
-    echo "Application started on port: ${httpPort} (http)"
-}
-
-def getVersions() {
-	def version = env.POM_VERSION.split(/[.]/)
-	echo "Version ${version}"
-	def major = version[0];
-	def minor = version[1];
-    echo "Original minor version ${minor}"
-    def patch  = Integer.parseInt(version[2]) + 1;
-    echo "Original patch version ${patch}"
-   env.NEW_VERSION = "${major}.${minor}.${patch}";
-    if (env.NEW_VERSION) {
-      echo "Building version ${env.NEW_VERSION}"
     }
 }
