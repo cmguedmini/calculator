@@ -28,7 +28,8 @@ node {
    //FIXME: use SSH-Agent
 
 sh "git config --replace-all credential.helper cache"
-sh "git config --global --replace-all user.email chawkimguedmini@gmail.com git config --global --replace-all user.name cmguedmini"
+sh "git config --global --replace-all user.email chawki.mguedmini@gmail.com"
+sh "git config --global --replace-all user.name cmguedmini"
 
 configFileProvider([configFile(fileId: "${configFileId}", variable: "MAVEN_SETTINGS")]) {
 
