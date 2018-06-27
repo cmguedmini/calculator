@@ -33,6 +33,20 @@ node {
         env.POM_ARTIFACT = pom.artifactId
     }
     
+    stage('Tag') {
+        sh 'git tag my-tag'
+        sh 'git config credential.helper "/bin/bash ' + env.WORKSPACE + '/credential-helper.sh"'
+
+        withCredentials([[
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'gitHubAccount',
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_PASSWORD'
+        ]]) {
+            sh 'git push origin my-tag'
+        }
+    }
+    
     stage("Set Version") {
     		sh "git fetch --unshallow || true"
             sh "git fetch origin \"+refs/heads/*:refs/remotes/origin/*\""
