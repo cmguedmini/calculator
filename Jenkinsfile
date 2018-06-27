@@ -27,9 +27,8 @@ node {
     
     stage("Set Version") {
       echo "Start Set Version Stage"
-      def major = ' '
       getVersions()
-      echo "Original major version ${env.VERSION_MAJOR}"
+      echo "Original major version ${env.NEW_VERSION}"
       
     }
 
@@ -115,5 +114,14 @@ def runApp(dockerHubUser, httpPort){
 }
 
 def getVersions() {
-	env.VERSION_MAJOR = env.POM_VERSION[0];
+
+	def major = env.POM_VERSION[0];
+	def minor = env.POM_VERSION[1];
+    echo "Original minor version ${minor}"
+    def patch  = Integer.parseInt(env.POM_VERSION[2]) + 1;
+    echo "Original patch version ${patch}"
+   env.NEW_VERSION = "${major}.${minor}.${patch}";
+    if (env.NEW_VERSION) {
+      echo "Building version ${env.NEW_VERSION}"
+    }
 }
