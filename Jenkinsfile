@@ -30,18 +30,7 @@ node {
       def major = ' '
       getVersions(major)
       echo "Original major version ${major}"
-      def minor = originalV[2];
-      echo "Original minor version ${minor}"
-      def patch  = Integer.parseInt(originalV[3]) + 1;
-      echo "Original patch version ${patch}"
-      def v = "${major}{.${minor}.${patch}"
-      if (v) {
-        echo "Building version ${v}"
-      }
-      sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${v}"
-      sh "git add ."
-      sh "git commit -m 'Raise version'"
-      sh "git tag v${v}"
+      
     }
 
     stage('Build'){
@@ -127,3 +116,4 @@ def runApp(dockerHubUser, httpPort){
 
 def getVersions(major) {
 	major = env.POM_VERSION[0];
+}
