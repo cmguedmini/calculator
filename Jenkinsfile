@@ -28,8 +28,8 @@ node {
     stage("Set Version") {
       echo "Start Set Version Stage"
       def major = ' '
-      getVersions(major)
-      echo "Original major version ${major}"
+      getVersions()
+      echo "Original major version ${env.VERSION_MAJOR}"
       
     }
 
@@ -114,6 +114,6 @@ def runApp(dockerHubUser, httpPort){
     echo "Application started on port: ${httpPort} (http)"
 }
 
-def getVersions(major) {
-	major = env.POM_VERSION[0];
+def getVersions() {
+	env.VERSION_MAJOR = env.POM_VERSION[0];
 }
