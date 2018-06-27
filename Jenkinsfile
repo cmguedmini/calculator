@@ -29,7 +29,7 @@ node {
     echo "Start Set Version Stage"
       def originalV = env.POM_VERSION.split('.');
       
-      echo "Original version ${originalV}"
+      echo "Original version length ${originalV.length}"
       def major = originalV[1];
       echo "Original major version ${major}"
       def minor = originalV[2];
