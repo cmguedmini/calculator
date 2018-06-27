@@ -44,7 +44,7 @@ node {
       		withCredentials([usernamePassword(credentialsId: 'gitHubAccount', usernameVariable: 'USERNAME_GIT', passwordVariable: 'PASSWORD_GIT')]) {
 	            sh "git commit -am \"New release candidate ${env.NEW_VERSION}\""
 	            sh "git tag -a ${env.NEW_VERSION} -m \"New Tag for release candidate ${env.NEW_VERSION}\""
-	            sh "git push https://${USERNAME_GIT}:${PASSWORD_GIT}@github.com/calculator.git --tags"
+	            sh "git push https://${USERNAME_GIT}:${PASSWORD_GIT}/github.com/calculator.git --tags"
             }
     }
 
