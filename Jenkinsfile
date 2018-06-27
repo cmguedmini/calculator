@@ -41,9 +41,12 @@ node {
       		sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
       		
       		echo "Commit and push branch"
-            sh "git commit -am \"New release candidate ${env.NEW_VERSION}\""
-            sh "git tag -a ${env.NEW_VERSION} -m \"New Tag for release candidate ${env.NEW_VERSION}\""
-            sh "git push origin ${env.BRANCH_NAME} --tags"
+      		withCredentials([usernamePassword(credentialsId: 'gitHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+	            sh "git commit -am \"New release candidate ${env.NEW_VERSION}\""
+	            sh "git tag -a ${env.NEW_VERSION} -m \"New Tag for release candidate ${env.NEW_VERSION}\""
+	            sh "git push https://${USERNAME}:${PASSWORD}@github.com/calculator.git ${env.BRANCH_NAME} --tags"
+	            sh "git push origin ${env.BRANCH_NAME} --tags"
+            }
     }
 
     stage('Build'){
