@@ -35,7 +35,7 @@ node {
       sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
       sh "git add ."
       sh "git commit -m 'Raise version'"
-      sh "git push origin ${env.BRANCH_NAME}"
+      sh "git push -u origin ${env.BRANCH_NAME}"
       sh "git tag v${env.NEW_VERSION}"
       
     }
