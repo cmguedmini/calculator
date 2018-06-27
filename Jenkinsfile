@@ -43,6 +43,9 @@ node {
             usernameVariable: 'GIT_USERNAME',
             passwordVariable: 'GIT_PASSWORD'
         ]]) {
+        	sh "git fetch --unshallow || true"
+            sh "git fetch origin \"+refs/heads/*:refs/remotes/origin/*\""
+    		sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
             getVersions()
       		echo "New version ${env.NEW_VERSION} for Branch ${env.BRANCH_NAME}"
       		sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
