@@ -34,11 +34,12 @@ node {
     }
     
     stage("Set Version") {
+    		sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
       		echo "Start Set Version Stage"
       		getVersions()
       		echo "New version ${env.NEW_VERSION} for Branch ${env.BRANCH_NAME}"
       		sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
-      		//sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
+      		
       		echo "Commit and push branch"
             sh "git commit -am \"New release candidate ${env.NEW_VERSION}\""
             sh "git tag -a ${env.NEW_VERSION} -m \"New Tag for release candidate ${env.NEW_VERSION}\""
