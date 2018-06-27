@@ -11,7 +11,7 @@ node {
     def gitCredentialsId = "xxx"
     def nexusRepositoryId = "xxx"
     def configFileId = "xxx"
-    def mvnHome = tool 'M3'
+    def mvnHome = tool 'myMaven'
 
     def updateQAVersion = {
         def split = version.split('\\.')
