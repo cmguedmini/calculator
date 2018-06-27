@@ -24,6 +24,21 @@ node {
         env.POM_VERSION = pom.version
         env.POM_ARTIFACT = pom.artifactId
     }
+    
+    stage("Set Version") {
+      def originalV = version();
+      def major = originalV[1];
+      def minor = originalV[2];
+      def patch  = Integer.parseInt(originalV[3]) + 1;
+      def v = "${major}.${minor}.${patch}"
+      if (v) {
+        echo "Building version ${v}"
+      }
+      sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${v}"
+      sh 'git add .'
+      sh "git commit -m 'Raise version'"
+      sh "git tag v${v}"
+    }
 
     stage('Build'){
         sh "mvn clean install"
