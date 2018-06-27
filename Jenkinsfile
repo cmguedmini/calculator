@@ -26,7 +26,7 @@ node {
     }
     
     stage("Set Version") {
-      def originalV = version();
+      def originalV = env.POM_VERSION;
       def major = originalV[1];
       def minor = originalV[2];
       def patch  = Integer.parseInt(originalV[3]) + 1;
