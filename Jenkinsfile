@@ -23,18 +23,19 @@ node {
         print "Build: " + pom.version
         env.POM_VERSION = pom.version
         env.POM_ARTIFACT = pom.artifactId
-        sh "git config --global user.email c.mguedmini@roam-smart.com"
-        sh "git config --global user.name Chawki Mguedmini"
+        sh "git config --global user.email 'c.mguedmini@roam-smart.com'"
+        sh "git config --global user.name 'Chawki Mguedmini'"
         
     }
     
     stage("Set Version") {
       echo "Start Set Version Stage"
       getVersions()
-      echo "New version ${env.NEW_VERSION}"
+      echo "New version ${env.NEW_VERSION} for Branch ${env.BRANCH}"
       sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
       sh "git add ."
       sh "git commit -m 'Raise version'"
+      sh "git push origin ${env.BRANCH}"
       sh "git tag v${env.NEW_VERSION}"
       
     }
