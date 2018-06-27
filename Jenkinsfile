@@ -18,12 +18,8 @@ node {
     stage('Checkout') {
         checkout scm
         
-        
-	
  		//def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
  		def pom = readMavenPom file: 'pom.xml'
- 		def version = pom.version.split('.')[0]
- 		echo "Version Major ${version}"
         print "Build: " + pom.version
         env.POM_VERSION = pom.version
         env.POM_ARTIFACT = pom.artifactId
@@ -118,7 +114,7 @@ def runApp(dockerHubUser, httpPort){
 }
 
 def getVersions() {
-	def version = "${env.POM_VERSION}".toString().split('.')
+	def version = "env.POM_VERSION.split(/[.]/)
 	echo "Version ${version}"
 	def major = version[0];
 	def minor = version[1];
