@@ -28,7 +28,11 @@ node {
     stage("Set Version") {
       echo "Start Set Version Stage"
       getVersions()
-      echo "Original major version ${env.NEW_VERSION}"
+      echo "New version ${env.NEW_VERSION}"
+      sh "mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${env.NEW_VERSION}"
+      sh "git add ."
+      sh "git commit -m 'Raise version'"
+      sh "git tag v${env.NEW_VERSION}"
       
     }
 
