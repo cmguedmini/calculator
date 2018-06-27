@@ -27,16 +27,16 @@ node {
     
     stage("Set Version") {
     echo "Start Set Version Stage"
-      def originalV = env.POM_VERSION;
+      def originalV = ${env.POM_VERSION};
       
-      echo "Original version length ${originalV.split('.')[0]}"
+      echo "Original version length ${originalV[0]}"
       def major = originalV[1];
       echo "Original major version ${major}"
       def minor = originalV[2];
       echo "Original minor version ${minor}"
       def patch  = Integer.parseInt(originalV[3]) + 1;
       echo "Original patch version ${patch}"
-      def v = "${major}.${minor}.${patch}"
+      def v = "${major}{.${minor}.${patch}"
       if (v) {
         echo "Building version ${v}"
       }
