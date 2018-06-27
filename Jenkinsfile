@@ -115,10 +115,10 @@ def runApp(dockerHubUser, httpPort){
 
 def getVersions() {
 
-	def major = env.POM_VERSION[0];
-	def minor = env.POM_VERSION[1];
+	def major = env.POM_VERSION.split('.')[0];
+	def minor = env.POM_VERSION.split('.')[1];
     echo "Original minor version ${minor}"
-    def patch  = Integer.parseInt(env.POM_VERSION[2]) + 1;
+    def patch  = Integer.parseInt(env.POM_VERSION.split('.')[2]) + 1;
     echo "Original patch version ${patch}"
    env.NEW_VERSION = "${major}.${minor}.${patch}";
     if (env.NEW_VERSION) {
