@@ -26,11 +26,9 @@ node {
     }
     
     stage("Set Version") {
-    echo "Start Set Version Stage"
-      def originalV = ${env.POM_VERSION};
-      
-      echo "Original version length ${originalV[0]}"
-      def major = originalV[1];
+      echo "Start Set Version Stage"
+      def major = ' '
+      getVersions(major)
       echo "Original major version ${major}"
       def minor = originalV[2];
       echo "Original minor version ${minor}"
@@ -126,3 +124,6 @@ def runApp(dockerHubUser, httpPort){
     sh "docker run -d --rm -p $httpPort:$httpPort --name ${env.POM_ARTIFACT} $dockerHubUser/${env.POM_ARTIFACT}:${env.POM_VERSION}"
     echo "Application started on port: ${httpPort} (http)"
 }
+
+def getVersions(major) {
+	major = env.POM_VERSION[0];
