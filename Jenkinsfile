@@ -6,14 +6,14 @@ def HTTP_PORT="9999"
 
   
 node {
-
-	sh "git config --replace-all credential.helper cache"
+	sh 'git config credential.helper "/bin/bash ' + env.WORKSPACE + '/credential-helper.sh"'
+	//sh "git config --replace-all credential.helper cache"
 	sh "git config --global --replace-all user.email chawki.mguedmini@gmail.com"
 	sh "git config --global --replace-all user.name cmguedmini"
 	
-	stage('Clean') {
+	/*stage('Clean') {
         deleteDir()
-    }
+    }*/
     
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
@@ -34,7 +34,7 @@ node {
     }
     
     stage('Tag') {
-        sh 'git config credential.helper "/bin/bash ' + env.WORKSPACE + '/credential-helper.sh"'
+        
 
         withCredentials([[
             $class: 'UsernamePasswordMultiBinding',
