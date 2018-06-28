@@ -6,7 +6,7 @@ def HTTP_PORT="9999"
 
   
 node {
-	sh 'git config credential.helper "/bin/bash ' + env.WORKSPACE + '/credential-helper.sh"'
+	
 	//sh "git config --replace-all credential.helper cache"
 	sh "git config --global --replace-all user.email chawki.mguedmini@gmail.com"
 	sh "git config --global --replace-all user.name cmguedmini"
@@ -25,7 +25,7 @@ node {
 
     stage('Checkout') {
         checkout scm
-        
+        sh 'git config credential.helper "/bin/bash ' + env.WORKSPACE + '/credential-helper.sh"'
  		//def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
  		def pom = readMavenPom file: 'pom.xml'
         print "Build: " + pom.version
