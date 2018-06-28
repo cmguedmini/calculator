@@ -11,7 +11,9 @@ node {
 	sh "git config --global --replace-all user.email chawki.mguedmini@gmail.com"
 	sh "git config --global --replace-all user.name cmguedmini"
 	
-	
+	stage('Clean') {
+        deleteDir()
+    }
     
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
@@ -19,9 +21,7 @@ node {
         env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"        
     }
     
-    stage('Clean') {
-        deleteDir()
-    }
+    
 
     stage('Checkout') {
         checkout scm
@@ -42,7 +42,7 @@ node {
             usernameVariable: 'GIT_USERNAME',
             passwordVariable: 'GIT_PASSWORD'
         ]]) {
-        	sh "git fetch --unshallow || true"
+        	//sh "git fetch --unshallow || true"
             sh "git fetch origin \"+refs/heads/*:refs/remotes/origin/*\""
     		sh "git checkout -b ${env.BRANCH_NAME} origin/${env.BRANCH_NAME}"
             getVersions()
