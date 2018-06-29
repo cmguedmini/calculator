@@ -35,7 +35,6 @@ node {
     }
     
     stage('Merge') {
-		steps {
 			script { 
 				if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'prod') {
 					echo 'This is not master or staging'
@@ -55,8 +54,7 @@ node {
 				} else {
 				echo 'Nothing to Do --------------------'
 				}
-			}
-		}   	
+			}  	
     }
     
     stage('Build'){
@@ -118,7 +116,6 @@ node {
     }
     
     stage('Push') {
-    	steps {
 			script { 
 				if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'prod') {
 					echo 'This is not master or staging'
@@ -134,8 +131,8 @@ node {
 			        }
 			    }
 		   }
-	    }
-    }
+	 }
+   
     
     
 
