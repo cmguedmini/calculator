@@ -11,9 +11,9 @@ node {
 	sh "git config --global --replace-all user.email chawki.mguedmini@gmail.com"
 	sh "git config --global --replace-all user.name cmguedmini"
 	
-	/*stage('Clean') {
+	stage('Clean') {
         deleteDir()
-    }*/
+    }
     
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
@@ -151,7 +151,8 @@ def getVersions() {
     echo "Original minor version ${minor}"
     def patch  = Integer.parseInt(version[2]) + 1;
     echo "Original patch version ${patch}"
-   env.NEW_VERSION = "${major}.${minor}.${patch}";
+    env.NEW_VERSION = "${major}.${minor}.${patch}";
+    
     if (env.NEW_VERSION) {
       echo "Building version ${env.NEW_VERSION}"
     }
