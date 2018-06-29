@@ -119,11 +119,11 @@ node {
    //     imageBuild()
    // }
 
-    /*stage('Push to Docker Registry'){
+    stage('Push to Docker Registry'){
         withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
             pushToImage(USERNAME, PASSWORD)
         }
-    }*/
+    }
 
     
     
