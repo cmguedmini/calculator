@@ -18,7 +18,8 @@ node {
     stage('Initialize'){
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
-        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"        
+        env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"    
+        env.CURRENT_BRANCH = env.BRANCH_NAME    
     }
     
     
@@ -32,6 +33,34 @@ node {
         env.POM_VERSION = pom.version
         env.POM_ARTIFACT = pom.artifactId
     }
+    
+    stage('Merge') {
+    	withCredentials([[
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'gitHubAccount',
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_PASSWORD'
+        ]]) {
+        	//sh "git fetch --unshallow || true"
+            sh "git fetch origin \"+refs/heads/*:refs/remotes/origin/*\""
+    		sh "git checkout -b ${env.CURRENT_BRANCH} origin/${env.CURRENT_BRANCH}"
+            sh "git checkout master"
+            sh "git pull"
+            sh "git merge origin/${env.CURRENT_BRANCH}"
+        }
+    }
+    
+    stage('Build'){
+        sh "mvn clean install"
+    }
+    
+    stage('Sonar'){
+        try {
+            sh "mvn sonar:sonar"
+        } catch(error){
+            echo "The sonar server could not be reached ${error}"
+        }
+     }
     
    /* stage('Tag') {
         
@@ -57,36 +86,45 @@ node {
         }
     }*/
 
-    stage('Build'){
-        sh "mvn clean install"
-    }
+    
 
-    stage('Sonar'){
-        try {
-            sh "mvn sonar:sonar"
-        } catch(error){
-            echo "The sonar server could not be reached ${error}"
-        }
-     }
+    
 
     stage("Image Prune"){
         imagePrune()
     }
+    
+    stage('Run App'){
+        runApp(DOCKER_HUB_USER, HTTP_PORT)
+        //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
+    }
+    
+    stage('Push') {
+    	withCredentials([[
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: 'gitHubAccount',
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_PASSWORD'
+        ]]) {
+            sh "git checkout master"
+            sh "git push origin master"
+            sh "git push origin --delete ${env.CURRENT_BRANCH}"
+        }
+    }
+    
+    
 
    // stage('Image Build'){
    //     imageBuild()
    // }
 
-    stage('Push to Docker Registry'){
+    /*stage('Push to Docker Registry'){
         withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
             pushToImage(USERNAME, PASSWORD)
         }
-    }
+    }*/
 
-    stage('Run App'){
-        runApp(DOCKER_HUB_USER, HTTP_PORT)
-        //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
-    }
+    
     
     stage('Email Notification'){
       mail bcc: '', body: '''Hi Welcome to jenkins email alerts
