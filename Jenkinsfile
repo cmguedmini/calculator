@@ -26,6 +26,7 @@ node {
 
     stage('Checkout') {
         checkout scm
+        echo "Current Branch ${env.CURRENT_BRANCH}"
         sh 'git config credential.helper "/bin/bash ' + env.WORKSPACE + '/credential-helper.sh"'
  		//def version = pom.version.replace("-SNAPSHOT", ".${currentBuild.number}")
  		def pom = readMavenPom file: 'pom.xml'
@@ -41,7 +42,7 @@ node {
             usernameVariable: 'GIT_USERNAME',
             passwordVariable: 'GIT_PASSWORD'
         ]]) {
-        	//sh "git fetch --unshallow || true"
+        	echo "Current Branch ${env.CURRENT_BRANCH}"
             sh "git fetch origin \"+refs/heads/*:refs/remotes/origin/*\""
     		sh "git checkout -b ${env.CURRENT_BRANCH} origin/${env.CURRENT_BRANCH}"
             sh "git checkout master"
