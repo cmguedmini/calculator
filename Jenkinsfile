@@ -33,7 +33,7 @@ node {
         env.POM_ARTIFACT = pom.artifactId
     }
     
-    stage('Tag') {
+   /* stage('Tag') {
         
 
         withCredentials([[
@@ -55,7 +55,7 @@ node {
 	        //sh "git push https://${USERNAME_GIT}:${PASSWORD_GIT}/github.com/calculator.git --tags"
 	        sh "git push origin  ${env.BRANCH_NAME} --tags"
         }
-    }
+    }*/
 
     stage('Build'){
         sh "mvn clean install"
