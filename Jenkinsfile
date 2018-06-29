@@ -88,16 +88,25 @@ node {
     }*/
 
     
-
+	
+    stage('Push to Docker Registry'){
+        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            pushToImage(USERNAME, PASSWORD)
+        }
+    }
     
 
     stage("Image Prune"){
         imagePrune()
     }
     
+    stage('Image Build'){
+        imageBuild()
+    }
+    
     stage('Run App'){
-        runApp(DOCKER_HUB_USER, HTTP_PORT)
-        //runLocalApp(CONTAINER_NAME, CONTAINER_TAG, HTTP_PORT)
+        //runApp(DOCKER_HUB_USER, HTTP_PORT)
+        runLocalApp(HTTP_PORT)
     }
     
     stage('Push') {
@@ -115,15 +124,8 @@ node {
     
     
 
-   // stage('Image Build'){
-   //     imageBuild()
-   // }
+   
 
-    stage('Push to Docker Registry'){
-        withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            pushToImage(USERNAME, PASSWORD)
-        }
-    }
 
     
     
@@ -171,7 +173,7 @@ def pushToRemoteGit() {
     sh "git tag v${env.NEW_VERSION}"
 }
 
-def runLocalApp(containerName, tag, httpPort){
+def runLocalApp(httpPort){
     sh "docker run -d --rm -p $httpPort:$httpPort --name ${env.POM_ARTIFACT} ${env.POM_ARTIFACT}:${env.POM_VERSION}"
     echo "Application started on port: ${httpPort} (http)"
 }
