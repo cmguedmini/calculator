@@ -6,8 +6,7 @@ def HTTP_PORT="9999"
 
   
 node {
-	
-	//sh "git config --replace-all credential.helper cache"
+	concurrency: 1
 	sh "git config --global --replace-all user.email chawki.mguedmini@gmail.com"
 	sh "git config --global --replace-all user.name cmguedmini"
 	
@@ -36,19 +35,28 @@ node {
     }
     
     stage('Merge') {
-    	withCredentials([[
-            $class: 'UsernamePasswordMultiBinding',
-            credentialsId: 'gitHubAccount',
-            usernameVariable: 'GIT_USERNAME',
-            passwordVariable: 'GIT_PASSWORD'
-        ]]) {
-        	echo "Current Branch ${env.CURRENT_BRANCH}"
-            sh "git fetch origin \"+refs/heads/*:refs/remotes/origin/*\""
-    		sh "git checkout -b ${env.CURRENT_BRANCH} origin/${env.CURRENT_BRANCH}"
-            sh "git checkout master"
-            sh "git pull"
-            sh "git merge origin/${env.CURRENT_BRANCH}"
-        }
+		steps {
+			script { 
+				if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'prod') {
+					echo 'This is not master or staging'
+					withCredentials([[
+						$class: 'UsernamePasswordMultiBinding',
+						credentialsId: 'gitHubAccount',
+						usernameVariable: 'GIT_USERNAME',
+						passwordVariable: 'GIT_PASSWORD'
+					]]) {
+							echo "Current Branch ${env.CURRENT_BRANCH}"
+							sh "git fetch origin \"+refs/heads/*:refs/remotes/origin/*\""
+							sh "git checkout -b ${env.CURRENT_BRANCH} origin/${env.CURRENT_BRANCH}"
+							sh "git checkout master"
+							sh "git pull"
+							sh "git merge origin/${env.CURRENT_BRANCH}"
+						}
+				} else {
+				echo 'Nothing to Do --------------------'
+				}
+			}
+		}   	
     }
     
     stage('Build'){
@@ -110,16 +118,23 @@ node {
     }
     
     stage('Push') {
-    	withCredentials([[
-            $class: 'UsernamePasswordMultiBinding',
-            credentialsId: 'gitHubAccount',
-            usernameVariable: 'GIT_USERNAME',
-            passwordVariable: 'GIT_PASSWORD'
-        ]]) {
-            sh "git checkout master"
-            sh "git push origin master"
-            sh "git push origin --delete ${env.CURRENT_BRANCH}"
-        }
+    	steps {
+			script { 
+				if (env.BRANCH_NAME != 'master' && env.BRANCH_NAME != 'prod') {
+					echo 'This is not master or staging'
+			    	withCredentials([[
+			            $class: 'UsernamePasswordMultiBinding',
+			            credentialsId: 'gitHubAccount',
+			            usernameVariable: 'GIT_USERNAME',
+			            passwordVariable: 'GIT_PASSWORD'
+			        ]]) {
+			            sh "git checkout master"
+			            sh "git push origin master"
+			            sh "git push origin --delete ${env.CURRENT_BRANCH}"
+			        }
+			    }
+		   }
+	    }
     }
     
     
