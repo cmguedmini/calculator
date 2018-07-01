@@ -1,0 +1,41 @@
+entity Points {
+	date LocalDate required,
+    Exercise Integer,
+    Meals Integer,
+    Notes String maxlength(140)
+}
+
+entity Weight {
+	date ZonedDateTime,
+    weight Integer
+}
+
+// an ignored comment
+/** not an ignored comment */
+entity BloodPressure {
+	date ZonedDateTime,
+	systolic Integer,
+	diastolic Integer
+}
+
+entity Preferences {
+	weightGoal Integer minlength(10) maxlength(21),
+    wieghtUnits Units required
+}
+
+
+enum Units {
+    KG, LB
+}
+
+
+relationship OneToOne {
+	Perferences{user} to User
+}
+
+
+relationship ManyToOne {
+	User{user} to Points,
+    User{user} to Weights,
+    User{user} to BloodPressure
+}
